@@ -1,7 +1,5 @@
-import pytest
-import matplotlib.pyplot as plt
 from drl.experiment.analyser import Analyzer
-from drl.experiment.config import Config
+from drl.experiment.configuration import Configuration
 from drl.experiment.experiment import Experiment
 from drl.experiment.explorer import Explorer
 
@@ -27,7 +25,7 @@ class TestAnalyser:
     #         assert(len(analysis.keys()) > 0)
 
     def test_listTrainExperiments_selectExperiments_compareEpochData(self):
-        config = Config(test=True)
+        config = Configuration(test_flag=True)
         explorer = Explorer(config=config)
         experiment = Experiment(config)
         analyzer = Analyzer(config=config, session_id=experiment.get_session_id())
@@ -39,7 +37,7 @@ class TestAnalyser:
         assert file is not None
 
     def test_listTrainExperiments_selectExperiment_printsConfig(self):
-        config = Config(test=True)
+        config = Configuration(test_flag=True)
         explorer = Explorer(config=config)
         experiment = Experiment(config)
         analyzer = Analyzer(config=config, session_id=experiment.get_session_id())
@@ -49,7 +47,7 @@ class TestAnalyser:
         analyzer.compare_train_config(experiments)
 
     def test_listTrainExperiments_selectExperiment_compareEpochScore(self):
-        config = Config(test=True)
+        config = Configuration(test_flag=True)
         explorer = Explorer(config=config)
         experiment = Experiment(config)
         analyzer = Analyzer(config=config, session_id=experiment.get_session_id())

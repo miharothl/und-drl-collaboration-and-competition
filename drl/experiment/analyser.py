@@ -7,13 +7,12 @@ from typing import Dict
 import matplotlib
 import matplotlib.pyplot as plt
 
-
-from drl.experiment.config import Config
+from drl.experiment.configuration import Configuration
 
 
 class Analyzer:
 
-    def __init__(self, config: Config, session_id):
+    def __init__(self, config: Configuration, session_id):
         self.__config = config
         self.__session_id = session_id
         pass

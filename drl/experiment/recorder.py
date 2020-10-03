@@ -4,8 +4,11 @@ import pandas as pd
 from typing import List, Tuple, Dict
 from pathlib import Path
 
+from drl.experiment.config.experiment_config import ExperimentConfig
+
+
 class Recorder:
-    def __init__(self, header: List, experiments_path,  session_id, model, log_prefix = '', configuration={}):
+    def __init__(self, header: List, experiments_path,  session_id, model, configuration: ExperimentConfig, log_prefix = ''):
         self.__header = header
         self.__parameters = []
         self.__session_id = session_id
@@ -43,7 +46,7 @@ class Recorder:
         data['configuration'] = self.__configuration
 
         with open(action_path, 'w') as fp:
-            json.dump(data, fp)
+            json.dump(data, fp, default=lambda o: o.__dict__, sort_keys=True)
 
     def __save_log(self):
         session_path = os.path.join(self.__experiments_path, self.__session_id)
