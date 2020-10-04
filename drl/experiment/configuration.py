@@ -795,7 +795,7 @@ class Configuration:
                         "gamma": 0.99,
                         "human_flag": False,
                         "max_episode_steps": 1000,
-                        "max_steps": 300000,
+                        "max_steps": 150000,
                         "tau": 0.001,
                         "update_every": 2,
                         "num_updates": 4
@@ -853,7 +853,7 @@ class Configuration:
                         "gamma": 0.99,
                         "human_flag": False,
                         "max_episode_steps": 1000,
-                        "max_steps": 300000,
+                        "max_steps": 150000,
                         "tau": 0.001,
                         "update_every": 2,
                         "num_updates": 4
