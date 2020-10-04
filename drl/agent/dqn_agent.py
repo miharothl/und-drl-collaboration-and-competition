@@ -67,6 +67,8 @@ class DqnAgent(Agent):
             action_values = self.current_model(state)
         self.current_model.train()
 
+        eps = min(eps, 1.)
+
         # Epsilon-greedy action selection
         if random.random() > eps:
             return np.argmax(action_values.cpu().data.numpy())

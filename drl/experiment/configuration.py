@@ -761,9 +761,9 @@ class Configuration:
                         "algorithm_type": "ddpg",
                         "dqn_cfg": None,
                         "ddpg_cfg": {
-                            "epsilon_start": 1.0,
+                            "epsilon_start": 1.5,
                             "epsilon_end": 0.1,
-                            "epsilon_decay": 0.997,
+                            "epsilon_decay": 0.9980,
                             "lr_actor": 1e-04,
                             "lr_critic": 3e-04,
                             "weight_decay":  0,
@@ -819,9 +819,9 @@ class Configuration:
                         "algorithm_type": "ddpg",
                         "dqn_cfg": None,
                         "ddpg_cfg": {
-                            "epsilon_start": 1.0,
+                            "epsilon_start": 1.5,
                             "epsilon_end": 0.1,
-                            "epsilon_decay": 0.997,
+                            "epsilon_decay": 0.9980,
                             "lr_actor": 1e-04,
                             "lr_critic": 3e-04,
                             "weight_decay":  0,

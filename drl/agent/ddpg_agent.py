@@ -76,6 +76,9 @@ class DdpgAgent(Agent):
         with torch.no_grad():
             action = self.actor_current_model(state).cpu().data.numpy()
         self.actor_current_model.train()
+
+        eps = min(eps, 1.)
+
         if add_noise:
             if self.num_agents == 1:
                 action += self.noise.sample() * eps
@@ -156,7 +159,7 @@ class DdpgAgent(Agent):
         self.soft_update(self.critic_current_model, self.critic_target_model, self.trainer_cfg.tau)
         self.soft_update(self.actor_current_model, self.actor_target_model, self.trainer_cfg.tau)
 
-        return 0, 0, 0, td_error
+        return 0, 0, critic_loss.item(), td_error
 
     def pre_process(self, state):
         return state
@@ -173,6 +176,11 @@ class DdpgAgent(Agent):
         else:
             for i in range(self.num_agents):
                 self.memory.add(state[i], action[i], reward[i], next_state[i], done[i])
+
+        pos_reward_ratio = None
+        neg_reward_ratio = None
+        loss = None
+        beta = None
 
         # Learn every UPDATE_EVERY time steps.
         self.step_update_counter = (self.step_update_counter + 1) % self.trainer_cfg.update_every
@@ -203,4 +211,4 @@ class DdpgAgent(Agent):
 
         self.step_counter += 1
 
-        return 0, 0, 0, 0
+        return 0, 0, loss, beta

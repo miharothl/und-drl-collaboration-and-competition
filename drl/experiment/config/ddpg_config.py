@@ -14,7 +14,7 @@ class DdpgConfig(ConfigBase):
                  critic_model_cfg : NeuralNetworkConfig
                  ):
 
-        self.ensure_betwen_0_and_1(epsilon_start)
+        # self.ensure_betwen_0_and_1(epsilon_start)
         self.ensure_betwen_0_and_1(epsilon_end)
         self.ensure_betwen_0_and_1(epsilon_decay)
         self.ensure_betwen_0_and_1(lr_actor)
