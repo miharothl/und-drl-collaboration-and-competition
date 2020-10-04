@@ -3,11 +3,13 @@ from collections import namedtuple
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
+from torch import Tensor
 
 from drl import drl_logger
 from drl.agent.agent import Agent
 from drl.agent.tools.ou_noise import OUNoise, OUNoiseStandardNormal
-from drl.agent.tools.replay_buffer import ReplayBuffer
+from drl.agent.tools.replay_buffer import ReplayBuffer, PrioritizedReplayBuffer
+from drl.agent.tools.schedules import LinearSchedule
 from drl.experiment.configuration import Configuration
 from drl.model.model_factory import ModelFactory
 
@@ -52,11 +54,18 @@ class DdpgAgent(Agent):
 
         # Replay Memory
         if self.replay_memory_cfg.prioritized_replay:
-            raise Exception('Prioritized replay is not supported.')
+            self.memory = PrioritizedReplayBuffer(int(self.replay_memory_cfg.buffer_size), alpha=self.replay_memory_cfg.prioritized_replay_alpha)
+            if self.prioritized_replay_beta_iters is None:
+                prioritized_replay_beta_iters = self.trainer_cfg.max_steps
+            self.beta_schedule = LinearSchedule(prioritized_replay_beta_iters,
+                                                initial_p=self.replay_memory_cfg.prioritized_replay_beta0,
+                                                final_p=1.0)
         else:
             self.memory = ReplayBuffer(self.replay_memory_cfg.buffer_size)
             self.beta_schedule = None
 
+        # Initialize time step counter (for prioritized memory replay)
+        self.step_counter = 0
         # Initialize time step (for updating every UPDATE_EVERY steps)
         self.step_update_counter = 0
 
@@ -116,7 +125,19 @@ class DdpgAgent(Agent):
         Q_targets = rewards + (gamma * Q_targets_next * (1 - dones))
         # Compute critic loss
         Q_expected = self.critic_current_model(states, actions)
-        critic_loss = F.mse_loss(Q_expected, Q_targets)
+        # critic_loss = F.mse_loss(Q_expected, Q_targets)
+
+        ##########################################################
+        critic_loss = (Q_expected - Q_targets).pow(2) * weights
+
+        td_error = critic_loss
+        td_error = td_error.squeeze(1)
+        td_error = Tensor.cpu(td_error.detach())
+        td_error = td_error.numpy()
+
+        critic_loss = critic_loss.mean()
+        ###############################################
+
         # Minimize the loss
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
@@ -135,7 +156,7 @@ class DdpgAgent(Agent):
         self.soft_update(self.critic_current_model, self.critic_target_model, self.trainer_cfg.tau)
         self.soft_update(self.actor_current_model, self.actor_target_model, self.trainer_cfg.tau)
 
-        return 0, 0, 0, 0
+        return 0, 0, 0, td_error
 
     def pre_process(self, state):
         return state
@@ -163,7 +184,10 @@ class DdpgAgent(Agent):
                 for _ in range(self.trainer_cfg.num_updates):
 
                     if self.replay_memory_cfg.prioritized_replay:
-                        raise Exception('Prioritized replay is not supported.')
+                        beta = self.beta_schedule.value(self.step_counter)
+                        experience = self.memory.sample(self.trainer_cfg.batch_size, beta=beta)
+                        (obses_t, actions, rewards, obses_tp1, dones, weights, batch_idxes) = experience
+                        exp = (obses_t, actions, rewards, obses_tp1, dones, weights)
                     else:
                         experiences = self.memory.sample(self.trainer_cfg.batch_size)
 
@@ -174,6 +198,9 @@ class DdpgAgent(Agent):
                     pos_reward_ratio, neg_reward_ratio, loss, td_error = self.learn(exp, self.trainer_cfg.gamma)
 
                     if self.replay_memory_cfg.prioritized_replay:
-                        raise Exception('Prioritized replay is not supported.')
+                        new_priorities = np.abs(td_error) + self.replay_memory_cfg.prioritized_replay_eps
+                        self.memory.update_priorities(batch_idxes, new_priorities)
+
+        self.step_counter += 1
 
         return 0, 0, 0, 0

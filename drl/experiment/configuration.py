@@ -763,7 +763,7 @@ class Configuration:
                         "ddpg_cfg": {
                             "epsilon_start": 1.0,
                             "epsilon_end": 0.1,
-                            "epsilon_decay": 0.9995,
+                            "epsilon_decay": 0.997,
                             "lr_actor": 1e-04,
                             "lr_critic": 3e-04,
                             "weight_decay":  0,
@@ -783,7 +783,7 @@ class Configuration:
                     },
                     "replay_memory_cfg": {
                         "buffer_size": 100000,
-                        "prioritized_replay": False,
+                        "prioritized_replay": True,
                         "prioritized_replay_alpha": 0.6,
                         "prioritized_replay_beta0": 0.4,
                         "prioritized_replay_eps": 1e-06
@@ -801,8 +801,64 @@ class Configuration:
                         "num_updates": 4
                     }
                 },
-
-
+                {
+                    'id': 'tennis-linux',
+                    'gym_id': 'env/unity/linux/tennis-novis/Tennis.x86_64',
+                    "agent_cfg": {
+                        "action_size": 2,
+                        "discrete": True,
+                        "num_frames": 1,
+                        "state_rgb": False,
+                        "state_size": 24
+                    },
+                    "environment_cfg": {
+                        "env_type": "unity-multiple",
+                        "num_agents": 2
+                    },
+                    "reinforcement_learning_cfg": {
+                        "algorithm_type": "ddpg",
+                        "dqn_cfg": None,
+                        "ddpg_cfg": {
+                            "epsilon_start": 1.0,
+                            "epsilon_end": 0.1,
+                            "epsilon_decay": 0.997,
+                            "lr_actor": 1e-04,
+                            "lr_critic": 3e-04,
+                            "weight_decay":  0,
+                            "actor_model_cfg": {
+                                "hidden_layers": [
+                                    256,
+                                    128
+                                ]
+                            },
+                            "critic_model_cfg": {
+                                "hidden_layers": [
+                                    256,
+                                    128
+                                ]
+                            },
+                        }
+                    },
+                    "replay_memory_cfg": {
+                        "buffer_size": 100000,
+                        "prioritized_replay": True,
+                        "prioritized_replay_alpha": 0.6,
+                        "prioritized_replay_beta0": 0.4,
+                        "prioritized_replay_eps": 1e-06
+                    },
+                    "trainer_cfg": {
+                        "batch_size": 128,
+                        "eval_frequency": 10000,
+                        "eval_steps": 2000,
+                        "gamma": 0.99,
+                        "human_flag": False,
+                        "max_episode_steps": 1000,
+                        "max_steps": 300000,
+                        "tau": 0.001,
+                        "update_every": 2,
+                        "num_updates": 4
+                    }
+                },
             ]
         }
 
