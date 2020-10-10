@@ -26,12 +26,12 @@ The environment is considered solved, when the average (over 100 episodes) of th
 
 # Approach
 
-I started with the DDPG [2] algorithm that I developed for [Continuous Control](https://github.com/miharothl/DRLND-Collaboration-And-Competition)[1] project. I adjusted the configuration
+I started with the DDPG [3] algorithm that I developed for Continuous Control[1] project. I adjusted the configuration
 to use 2 agents and I was able to solve the environment by achieving a score 0.5+ over 100 consecutive episodes.
 
 I tired to improve the learning process by implementing:
-- PER [3]
-- MADDPG [4] (branch: try-maddpg)
+- PER [5]
+- MADDPG [6] (branch: try-maddpg)
 
 The steps that I followed to solve this environment:
 
@@ -85,10 +85,10 @@ using the specified *Learning Rate*.
 
 Learning is performed *Num Updates* times on every *Update Every* steps, when *Batch Size* of actions, states, dones and rewards tuples are
 sampled from the
-[replay buffer](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/master/drl/agent/tools/replay_buffer.py)
+[replay buffer](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/master/drl/agent/tools/replay_buffer.py) [2]
 either randomly or in case of prioritized experience replay, based on their importance,
 determined by the temporal difference error. Prioritized experience replay requires
-[segment trees](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/master/drl/agent/tools/segment_tree.py)
+[segment trees](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/master/drl/agent/tools/segment_tree.py) [2]
 .
 
 During the exploitation phase of the training (lower *Epsilon*) the noise added to the actions is proportionally scaled down (*epsilon end*)
@@ -108,11 +108,9 @@ I used the following training hyper-parameters:
 |Max Episode Steps          |1000                     |
 |Evaluation Frequency       |10000  (max 10 episodes) |
 |Evaluation Steps           |2000   (max 2 episodes)  |
-
 |Epsilon Start              |1.5 (rounded to 1.       |
 |Epsilon End                |0.1                      |
 |Epsilon Decay              |0.998                    |
-
 |Actor Hidden Layers Units  |[256, 128]               |
 |Critic Hidden Layers Units |[256, 128]               |
 |Gamma                      |0.99                     |
@@ -121,7 +119,6 @@ I used the following training hyper-parameters:
 |Learning Rate Critic       |0.0003                   |
 |Update Every               |2                        |
 |Num Updates                |4                        |
-
 |Replay Buffer Size         |100000                   |
 |Batch Size                 |128                      |
 |Use Prioritized Replay     |True                     |
@@ -146,30 +143,25 @@ trained in the Epoch 3 after playing 602 episodes.
 2020-10-10 10:02:50,691 - drl - EPOCH - Epoch. - {'epoch': 3, 'mean score': 0.5895000087842345, 'mean val score': 1.3000000193715096, 'eps': '0.449', 'elapsed': '1305s'}
 ```
 
-The best agent is trained in epoch 29 after playing 99 episodes and can achieve a score **38.84** over 100 consecutive episodes using multiple 20 agents.
+The best agent is trained in Epoch 6 after playing 674 episodes and can achieve a score **2.5** over 100 consecutive episodes.
 
 ```
-2020-09-25 08:40:34,511 - drl - EPISODE - Play. - {'episode': 97, 'score': '39.093', 'elapsed': '79.617s'}
-2020-09-25 08:41:54,146 - drl - EPISODE - Play. - {'episode': 98, 'score': '38.862', 'elapsed': '79.619s'}
-2020-09-25 08:43:13,783 - drl - EPISODE - Play. - {'episode': 99, 'score': '38.480', 'elapsed': '79.619s'}
 
-Average score over 100 episodes is 38.83892413188238
+Average score over 100 episodes is 2.5
 ```
 
 # Future Work
 
 Deep reinforcement learning is a fascinating and exciting topic. I'll continue to improve my reinforcement learning
 laboratory by applying
- * distributed algorithms like PPO [4], A3C [5] or D4PG [6] and by
- * solving other attractive environments requiring continuous control like the Crawler.
+ * MADDPG to the Soccer environment.
 
-![Crawler][image3]
+![Soccer][image3]
 
 # References
-  - [1] [Udacity](https://github.com/udacity/deep-reinforcement-learning)
+  - [1] [Continuous Control](https://github.com/miharothl/DRLND-Continuous-Control)
   - [2] [Open AI Baselines](https://github.com/openai/baselines)
-  - [3] [Continuous control with deep reinforcement learning](https://arxiv.org/abs/1509.02971)
-  - [4] [Proximal Policy Optimization Algorithms](https://arxiv.org/pdf/1707.06347.pdf) 
-  - [5] [Asynchronous Methods for Deep Reinforcement Learning](https://arxiv.org/pdf/1602.01783.pdf)
-  - [6] [Distributed Distributional Deterministic Policy Gradients](https://openreview.net/pdf?id=SyZipzbCb)
-
+  - [3] [Continuous Control with Deep Reinforcement Learning](https://arxiv.org/abs/1509.02971)
+  - [4] [Understanding Prioritized Experience Replay](https://danieltakeshi.github.io/2019/07/14/per/)
+  - [5] [Prioritized Experience Replay](https://arxiv.org/abs/1511.05952)
+  - [6] [Multi-Agent Actor-Critic for Mixed Cooperative-Competitive Environments](https://papers.nips.cc/paper/7217-multi-agent-actor-critic-for-mixed-cooperative-competitive-environments.pdf)
