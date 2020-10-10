@@ -7,10 +7,9 @@
 
 # Goal
 
-The project aim is to train two agents that control rackets and bounce a ball over the a net. If an agent hits the ball over the net,
+The projects aim is to train two agents that control rackets and bounce a ball over the a net. If an agent hits the ball over the net,
 it receives a reward of +0.1.  If an agent lets a ball hit the ground or hits the ball out of bounds, it receives a reward of -0.01.
 The goal of each agent is to keep the ball in play.
-
 
 ![Trained Agent][image1]
 
@@ -27,12 +26,12 @@ The environment is considered solved, when the average (over 100 episodes) of th
 
 # Approach
 
-I started with the DDPG [2] algorithm that I developed for [Continuous Control](https://github.com/miharothl/DRLND-Collaboration-And-Competition)[1]. I adjusted the configuration
-to use 2 agents and was able to solve the environment by achieving a score 0.5+ over 100 consecutive episodes.
+I started with the DDPG [2] algorithm that I developed for [Continuous Control](https://github.com/miharothl/DRLND-Collaboration-And-Competition)[1] project. I adjusted the configuration
+to use 2 agents and I was able to solve the environment by achieving a score 0.5+ over 100 consecutive episodes.
 
 I tired to improve the learning process by implementing:
 - PER [3]
-- MADDPG [4]
+- MADDPG [4] (branch: try-maddpg)
 
 The steps that I followed to solve this environment:
 
@@ -86,10 +85,10 @@ using the specified *Learning Rate*.
 
 Learning is performed *Num Updates* times on every *Update Every* steps, when *Batch Size* of actions, states, dones and rewards tuples are
 sampled from the
-[replay buffer](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/master/drl/agents/replay_buffer.py)
+[replay buffer](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/master/drl/agent/tools/replay_buffer.py)
 either randomly or in case of prioritized experience replay, based on their importance,
 determined by the temporal difference error. Prioritized experience replay requires
-[segment trees](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/master/drl/agents/segment_tree.py)
+[segment trees](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/master/drl/agent/tools/segment_tree.py)
 .
 
 During the exploitation phase of the training (lower *Epsilon*) the noise added to the actions is proportionally scaled down (*epsilon end*)
@@ -97,47 +96,57 @@ and mostly based on the estimated policies calculated by the current actor neura
 
 ## 4. Run Experiments and Select Best Agent
 
-[Training](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/master/rlab-continous-control.ipynb)
+[Training](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/master/rlab-collaboration-and-competition.ipynb)
 is done using the epochs, consisting of training episodes where epsilon greedy agent is used,
 and validation episodes using only actions predicted by the trained agent.
  
-I used the following training hyperparameters:
+I used the following training hyper-parameters:
 
-|Hyper Parameter            |Value                 |
-|:---                       |:---                  |
-|Max Steps                  |300000 (300 episodes) |
-|Max Episode Steps          |1000                  |
-|Evaluation Frequency       |10000  (10 episodes)  |
-|Evaluation Steps           |2000   (2 episodes)   |
-|Epsilon Start              |1.                    |
-|Epsilon End                |0.1                   |
-|Epsilon Decay              |0.97                  |
-|Batch Size                 |128                   |
-|Update Every               |10                    |
-|Num Updates                |20                    |
-|Learning Rate Actor        |0.0001                |
-|Learning Rate Critic       |0.0003                |
-|Tau                        |0.001                 |
-|Gamma                      |0.99                  |
-|Actor Hidden Layers Units  |[256, 128]            |
-|Critic Hidden Layers Units |[256, 128]            |
-|Buffer Size                |100000                |
-|Use Prioritized Replay     | False                |
+|Hyper Parameter            |Value                    |
+|:---                       |:---                     |
+|Max Steps                  |150000                   |
+|Max Episode Steps          |1000                     |
+|Evaluation Frequency       |10000  (max 10 episodes) |
+|Evaluation Steps           |2000   (max 2 episodes)  |
 
-The first version of an agent that can solve the environment with scores 30+ is obtained in 1st epoch after 19 training episodes. 
+|Epsilon Start              |1.5 (rounded to 1.       |
+|Epsilon End                |0.1                      |
+|Epsilon Decay              |0.998                    |
+
+|Actor Hidden Layers Units  |[256, 128]               |
+|Critic Hidden Layers Units |[256, 128]               |
+|Gamma                      |0.99                     |
+|Tau                        |0.001                    |
+|Learning Rate Actor        |0.0001                   |
+|Learning Rate Critic       |0.0003                   |
+|Update Every               |2                        |
+|Num Updates                |4                        |
+
+|Replay Buffer Size         |100000                   |
+|Batch Size                 |128                      |
+|Use Prioritized Replay     |True                     |
+|Prioritized Replay Alpha   |0.6                      |
+|Prioritized Replay Beta0   |0.4                      |
+|Prioritized Replay eps     |1e-06                    |
+
+The first version of an agent that can solve the environment with scores 0.5+ is obtained in over 100 episodes is 
+trained in the Epoch 3 after playing 602 episodes.
 
 ![Training Score][image4]
 ![Training Epsilon][image5]
 
 ```
-2020-09-24 18:29:49,164 - drl - EPISODE - Train. - {'step': 18000, 'episode': 17, 'epoch': 1, 'epoch_step': 8000, 'epoch_episode': 8, 'episode_step': 999, 'score': '24.504', 'eps': '0.596', 'elapsed': '87s'}
-2020-09-24 18:31:16,644 - drl - EPISODE - Train. - {'step': 19000, 'episode': 18, 'epoch': 1, 'epoch_step': 9000, 'epoch_episode': 9, 'episode_step': 999, 'score': '24.781', 'eps': '0.578', 'elapsed': '87s'}
-2020-09-24 18:32:44,233 - drl - EPISODE - Train. - {'step': 20000, 'episode': 19, 'epoch': 1, 'epoch_step': 10000, 'epoch_episode': 10, 'episode_step': 999, 'score': '27.614', 'eps': '0.561', 'elapsed': '88s'}
-2020-09-24 18:34:03,759 - drl - EPISODE - Validate. - {'epoch': 1, 'epoch_step': 1000, 'epoch_episode': 1, 'episode_step': 999, 'score': '30.364', 'eps': '0.544', 'elapsed': '80s'}
-2020-09-24 18:35:23,298 - drl - EPISODE - Validate. - {'epoch': 1, 'epoch_step': 2000, 'epoch_episode': 2, 'episode_step': 999, 'score': '30.859', 'eps': '0.544', 'elapsed': '80s'}
+2020-10-10 09:58:18,668 - drl - EPISODE - Train. - {'step': 39341, 'episode': 600, 'epoch': 3, 'epoch_step': 9341, 'epoch_episode': 20, 'episode_step': 449, 'score': '1.150', 'eps': '0.451', 'elapsed': '50s'}
+2020-10-10 09:58:43,526 - drl - EPISODE - Train. - {'step': 39564, 'episode': 601, 'epoch': 3, 'epoch_step': 9564, 'epoch_episode': 21, 'episode_step': 222, 'score': '0.550', 'eps': '0.450', 'elapsed': '25s'}
+2020-10-10 09:59:31,814 - drl - EPISODE - Train. - {'step': 40000, 'episode': 602, 'epoch': 3, 'epoch_step': 10000, 'epoch_episode': 22, 'episode_step': 436, 'score': '1.100', 'eps': '0.449', 'elapsed': '48s'}
+2020-10-10 10:00:12,679 - drl - EPISODE - Validate. - {'epoch': 3, 'epoch_step': 411, 'epoch_episode': 1, 'episode_step': 410, 'score': '1.100', 'eps': '0.449', 'elapsed': '41s'}
+2020-10-10 10:01:52,111 - drl - EPISODE - Validate. - {'epoch': 3, 'epoch_step': 1411, 'epoch_episode': 2, 'episode_step': 999, 'score': '2.600', 'eps': '0.449', 'elapsed': '99s'}
+2020-10-10 10:01:52,525 - drl - EPISODE - Validate. - {'epoch': 3, 'epoch_step': 1415, 'epoch_episode': 3, 'episode_step': 3, 'score': '0.000', 'eps': '0.449', 'elapsed': '0s'}
+2020-10-10 10:02:50,690 - drl - EPISODE - Validate. - {'epoch': 3, 'epoch_step': 2000, 'epoch_episode': 4, 'episode_step': 585, 'score': '1.500', 'eps': '0.449', 'elapsed': '58s'}
+2020-10-10 10:02:50,691 - drl - EPOCH - Epoch. - {'epoch': 3, 'mean score': 0.5895000087842345, 'mean val score': 1.3000000193715096, 'eps': '0.449', 'elapsed': '1305s'}
 ```
 
-The best agent is trained in epoch 29 after playing 299 episodes and can achieve a score **38.84** over 100 consecutive episodes using multiple 20 agents.
+The best agent is trained in epoch 29 after playing 99 episodes and can achieve a score **38.84** over 100 consecutive episodes using multiple 20 agents.
 
 ```
 2020-09-25 08:40:34,511 - drl - EPISODE - Play. - {'episode': 97, 'score': '39.093', 'elapsed': '79.617s'}
