@@ -31,7 +31,7 @@ to use 2 agents and I was able to solve the environment by achieving a score 0.5
 
 I tired to improve the learning process by implementing:
 - PER [5]
-- MADDPG [6] (branch: try-maddpg)
+- MADDPG [6] (in progress on branch: try-maddpg)
 
 The steps that I followed to solve this environment:
 
@@ -131,6 +131,8 @@ trained in the Epoch 3 after playing 602 episodes.
 
 ![Training Score][image4]
 ![Training Epsilon][image5]
+
+Using PER didn't improve the training process.
 
 ```
 2020-10-10 09:58:18,668 - drl - EPISODE - Train. - {'step': 39341, 'episode': 600, 'epoch': 3, 'epoch_step': 9341, 'epoch_episode': 20, 'episode_step': 449, 'score': '1.150', 'eps': '0.451', 'elapsed': '50s'}
