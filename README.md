@@ -76,7 +76,8 @@ To set up your python environment to run the code in this repository, follow the
         'id': 'tennis',
         'gym_id': 'env/unity/mac/tennis.app',
         "agent_cfg": {
-    ...
+        ...
+    }
     ```
 
 # How to Use Reinforcement Learning Lab
