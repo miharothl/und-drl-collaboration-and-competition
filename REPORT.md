@@ -4,6 +4,9 @@
 [image1]: https://user-images.githubusercontent.com/10624937/42135623-e770e354-7d12-11e8-998d-29fc74429ca2.gif "Trained Agent"
 [image2]: https://user-images.githubusercontent.com/10624937/42386929-76f671f0-8106-11e8-9376-f17da2ae852e.png "Kernel"
 [image3]: https://user-images.githubusercontent.com/10624937/42135622-e55fb586-7d12-11e8-8a54-3c31da15a90a.gif "Soccer"
+[image4]: https://raw.githubusercontent.com/miharothl/DRLND-Continuous-Control/master/images/training-score.png   "Score"
+[image5]: https://raw.githubusercontent.com/miharothl/DRLND-Continuous-Control/master/images/training-epsilon.png "Epsilon"
+
 
 # Goal
 
@@ -31,7 +34,12 @@ to use 2 agents and I was able to solve the environment by achieving a score 0.5
 
 I tired to improve the learning process by implementing:
 - PER [5]
-- MADDPG [6] (in progress on branch: try-maddpg)
+- MADDPG [6] (in progress on branch: try-maddpg,
+ [multiple compepetitive agents](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/try-maddpg/drl/agent/maddpg_agent.py)
+ where each
+ [agent](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/try-maddpg/drl/agent/ddpg_agent.py)
+  has its own memory replay. 
+ )
 
 The steps that I followed to solve this environment:
 
@@ -131,8 +139,9 @@ trained in the Epoch 3 after playing 602 episodes.
 
 ![Training Score][image4]
 ![Training Epsilon][image5]
+![Training Loss][image6]
 
-Using PER didn't improve the training process.
+Using PER improve the scores and stability of the agent.
 
 ```
 2020-10-10 09:58:18,668 - drl - EPISODE - Train. - {'step': 39341, 'episode': 600, 'epoch': 3, 'epoch_step': 9341, 'epoch_episode': 20, 'episode_step': 449, 'score': '1.150', 'eps': '0.451', 'elapsed': '50s'}
@@ -145,11 +154,16 @@ Using PER didn't improve the training process.
 2020-10-10 10:02:50,691 - drl - EPOCH - Epoch. - {'epoch': 3, 'mean score': 0.5895000087842345, 'mean val score': 1.3000000193715096, 'eps': '0.449', 'elapsed': '1305s'}
 ```
 
-The best agent is trained in Epoch 6 after playing 674 episodes and can achieve a score **2.5** over 100 consecutive episodes.
+The best agent is trained in Epoch 14 after playing 851 episodes and can achieve an average score **2.39** over 100 consecutive episodes (limited to 1000 steps).
 
 ```
+2020-10-10 17:57:45,103 - drl - EPISODE - Play. - {'episode': 95, 'score': '2.650', 'elapsed': '99.533s'}
+2020-10-10 17:59:24,635 - drl - EPISODE - Play. - {'episode': 96, 'score': '2.600', 'elapsed': '99.516s'}
+2020-10-10 18:01:04,168 - drl - EPISODE - Play. - {'episode': 97, 'score': '2.650', 'elapsed': '99.516s'}
+2020-10-10 18:02:43,717 - drl - EPISODE - Play. - {'episode': 98, 'score': '2.650', 'elapsed': '99.516s'}
+2020-10-10 18:04:23,249 - drl - EPISODE - Play. - {'episode': 99, 'score': '2.600', 'elapsed': '99.516s'}
 
-Average score over 100 episodes is 2.5
+Average score over 100 episodes is 2.3895500356238335
 ```
 
 # Future Work
