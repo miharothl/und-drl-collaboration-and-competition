@@ -1,1 +1,1 @@
-nohup ./rlab -vvv -t -e reacher-multiple-linux 2>&1 > train.log &
+nohup ./rlab -vvv -t -e tennis-linux 2>&1 > train.log &
