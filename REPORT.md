@@ -137,11 +137,11 @@ I used the following training hyper-parameters:
 The first version of an agent that can solve the environment with scores 0.5+ is obtained in over 100 episodes is 
 trained in the Epoch 3 after playing 602 episodes.
 
+Using PER (amber) improve the scores and stability of the agent.
+
 ![Training Score][image4]
 ![Training Epsilon][image5]
-![Training Loss][image6]
 
-Using PER improve the scores and stability of the agent.
 
 ```
 2020-10-10 09:58:18,668 - drl - EPISODE - Train. - {'step': 39341, 'episode': 600, 'epoch': 3, 'epoch_step': 9341, 'epoch_episode': 20, 'episode_step': 449, 'score': '1.150', 'eps': '0.451', 'elapsed': '50s'}
