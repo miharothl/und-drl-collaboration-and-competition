@@ -21,7 +21,8 @@ class MasterTrainer(Trainer):
 
         reinforcement_learning_cfg = self.cfg.get_current_exp_cfg().reinforcement_learning_cfg
 
-        if cfg.get_current_exp_cfg().reinforcement_learning_cfg.algorithm_type.startswith('ddpg'):
+        if cfg.get_current_exp_cfg().reinforcement_learning_cfg.algorithm_type.startswith('ddpg')\
+                or cfg.get_current_exp_cfg().reinforcement_learning_cfg.algorithm_type.startswith('maddpg'):
             self.eps = reinforcement_learning_cfg.ddpg_cfg.epsilon_start   # initialize epsilon
             self.eps_end = reinforcement_learning_cfg.ddpg_cfg.epsilon_end
             self.eps_decay = reinforcement_learning_cfg.ddpg_cfg.epsilon_decay

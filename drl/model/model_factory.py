@@ -95,7 +95,8 @@ class ModelFactory:
                 return current_model, target_model
 
 
-        if cfg.get_current_exp_cfg().reinforcement_learning_cfg.algorithm_type.startswith("ddpg"):
+        if cfg.get_current_exp_cfg().reinforcement_learning_cfg.algorithm_type.startswith("ddpg") or\
+            cfg.get_current_exp_cfg().reinforcement_learning_cfg.algorithm_type.startswith("maddpg"):
 
             fc_units_actor = cfg.get_current_exp_cfg().reinforcement_learning_cfg.ddpg_cfg.actor_model_cfg.hidden_layers
             fc_units_critic = cfg.get_current_exp_cfg().reinforcement_learning_cfg.ddpg_cfg.critic_model_cfg.hidden_layers

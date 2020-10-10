@@ -17,6 +17,8 @@ class TrainerFactory:
             trainer = MasterTrainer(cfg=cfg, session_id=session_id)
         elif algorithm_type.startswith('ddpg'):
             trainer = MasterTrainer(cfg=cfg, session_id=session_id)
+        elif algorithm_type.startswith('maddpg'):
+            trainer = MasterTrainer(cfg=cfg, session_id=session_id)
         else:
             raise Exception("Trainer for algorighm '{}' type not supported".format(algorithm_type))
 

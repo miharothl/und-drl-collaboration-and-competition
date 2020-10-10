@@ -7,6 +7,7 @@ from torch import Tensor
 
 from drl import drl_logger
 from drl.agent.agent import Agent
+from drl.agent.ddpg_agent import DdpgAgent
 from drl.agent.tools.ou_noise import OUNoise, OUNoiseStandardNormal
 from drl.agent.tools.replay_buffer import ReplayBuffer, PrioritizedReplayBuffer
 from drl.agent.tools.schedules import LinearSchedule
@@ -16,11 +17,10 @@ from drl.model.model_factory import ModelFactory
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-class DdpgAgent(Agent):
+class MaddpgAgent():
     """Interacts with and learns from the environment."""
 
     def __init__(self, seed, cfg: Configuration, num_agents=1):
-        super(DdpgAgent, self).__init__(cfg)
 
         """Initialize an Agent object.
 
@@ -31,63 +31,27 @@ class DdpgAgent(Agent):
             num_agents(int): number of agents
         """
 
-        # self.num_agents = cfg.get_current_exp_cfg().environment_cfg.num_agents
-        # MADDPG
-        self.num_agents = 1
+        self.num_agents = cfg.get_current_exp_cfg().environment_cfg.num_agents
 
         self.state_size = cfg.get_current_exp_cfg().agent_cfg.state_size
         self.action_size = cfg.get_current_exp_cfg().agent_cfg.action_size
 
-        # Actor Network (w/ Target Network)
-        # Critic Network (w/ Target Network)
-        self.actor_current_model, self.actor_target_model, self.critic_current_model, self.critic_target_model = ModelFactory.create(seed, device, cfg)
+        self.agents = []
 
-        self.actor_optimizer = optim.Adam(
-            self.actor_current_model.parameters(),
-            lr=self.reinforcement_learning_cfg.ddpg_cfg.lr_actor)
-
-        self.critic_optimizer = optim.Adam(
-            self.critic_current_model.parameters(),
-            lr=self.reinforcement_learning_cfg.ddpg_cfg.lr_critic,
-            weight_decay=self.reinforcement_learning_cfg.ddpg_cfg.weight_decay)
-
-        # Noise process
-        self.noise = OUNoiseStandardNormal(self.action_size, seed)
-
-        # Replay Memory
-        if self.replay_memory_cfg.prioritized_replay:
-            self.memory = PrioritizedReplayBuffer(int(self.replay_memory_cfg.buffer_size), alpha=self.replay_memory_cfg.prioritized_replay_alpha)
-            if self.prioritized_replay_beta_iters is None:
-                prioritized_replay_beta_iters = self.trainer_cfg.max_steps
-            self.beta_schedule = LinearSchedule(prioritized_replay_beta_iters,
-                                                initial_p=self.replay_memory_cfg.prioritized_replay_beta0,
-                                                final_p=1.0)
-        else:
-            self.memory = ReplayBuffer(self.replay_memory_cfg.buffer_size)
-            self.beta_schedule = None
-
-        # Initialize time step counter (for prioritized memory replay)
-        self.step_counter = 0
-        # Initialize time step (for updating every UPDATE_EVERY steps)
-        self.step_update_counter = 0
+        for _ in range(self.num_agents):
+            agent = DdpgAgent(seed, cfg)
+            self.agents.append(agent)
 
     def act(self, state, eps=0., add_noise=True):
-        """Returns actions for given state as per current policy."""
-        state = torch.from_numpy(state).float().to(device)
-        self.actor_current_model.eval()
-        with torch.no_grad():
-            action = self.actor_current_model(state).cpu().data.numpy()
-        self.actor_current_model.train()
 
-        eps = min(eps, 1.)
+        actions=[]
+        for i in range(self.num_agents):
+            action = self.agents[i].act(state=state[i], eps=eps)
+            actions.append(action)
 
-        if add_noise:
-            if self.num_agents == 1:
-                action += self.noise.sample() * eps
-            else:
-                action += [self.noise.sample() * eps for _ in range(self.num_agents)]
+        actions = np.asarray(actions)
 
-        return np.clip(action, -1, 1)
+        return actions
 
     def get_models(self):
 
@@ -172,6 +136,10 @@ class DdpgAgent(Agent):
     def step(self, state, action, reward, next_state, done):
         """Save experience in replay memory, and use random sample from buffer to learn."""
         # Save experience / reward
+
+
+
+
 
         if self.num_agents == 1:
             self.memory.add(state, action, reward, next_state, done)

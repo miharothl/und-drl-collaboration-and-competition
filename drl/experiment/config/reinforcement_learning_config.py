@@ -10,7 +10,7 @@ class ReinforcementLearningConfig(ConfigBase):
                  ddpg_cfg: DdpgConfig,
                  ):
 
-        self.ensure_in_list(param=algorithm_type, valid=['dqn', 'dqn_double', 'dqn_dueling', 'ddpg'])
+        self.ensure_in_list(param=algorithm_type, valid=['dqn', 'dqn_double', 'dqn_dueling', 'ddpg', 'maddpg'])
 
         self.algorithm_type = algorithm_type
         self.dqn_cfg = dqn_cfg
@@ -18,6 +18,7 @@ class ReinforcementLearningConfig(ConfigBase):
 
         self.ensure_exists(if_alg_startswith='dqn', algorithm_type=algorithm_type, cfg=self.dqn_cfg)
         self.ensure_exists(if_alg_startswith='ddpg', algorithm_type=algorithm_type, cfg=self.ddpg_cfg)
+        self.ensure_exists(if_alg_startswith='maddpg', algorithm_type=algorithm_type, cfg=self.ddpg_cfg)
 
     @classmethod
     def from_json(cls, data):
