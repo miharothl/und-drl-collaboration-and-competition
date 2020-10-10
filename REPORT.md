@@ -1,37 +1,38 @@
 [//]: # (Image References)
 
-[image1]: https://user-images.githubusercontent.com/10624937/43851024-320ba930-9aff-11e8-8493-ee547c6af349.gif "Trained Agent"
-[image2]: https://user-images.githubusercontent.com/10624937/42135608-be87357e-7d12-11e8-8eca-e6d5fabdba6b.gif "Bipedal Walker"
-[image3]: https://user-images.githubusercontent.com/10624937/43851646-d899bf20-9b00-11e8-858c-29b5c2c94ccc.png "Crawler"
-[image4]: https://raw.githubusercontent.com/miharothl/DRLND-Continuous-Control/master/images/training-score.png   "Score"
-[image5]: https://raw.githubusercontent.com/miharothl/DRLND-Continuous-Control/master/images/training-epsilon.png "Epsilon"
+
+[image1]: https://user-images.githubusercontent.com/10624937/42135623-e770e354-7d12-11e8-998d-29fc74429ca2.gif "Trained Agent"
+[image2]: https://user-images.githubusercontent.com/10624937/42386929-76f671f0-8106-11e8-9376-f17da2ae852e.png "Kernel"
+[image3]: https://user-images.githubusercontent.com/10624937/42135622-e55fb586-7d12-11e8-8a54-3c31da15a90a.gif "Soccer"
 
 # Goal
 
-The project aims to train an agent and control 20 robot arms simultaneously, to reach spheres randomly circulating the robot.
-Each robot consists of two arms joints.
+The project aim is to train two agents that control rackets and bounce a ball over the a net. If an agent hits the ball over the net,
+it receives a reward of +0.1.  If an agent lets a ball hit the ground or hits the ball out of bounds, it receives a reward of -0.01.
+The goal of each agent is to keep the ball in play.
+
 
 ![Trained Agent][image1]
 
-We take into account the presence of many agents which need to get an average score of +30 (over 100 consecutive episodes, and over all agents).  Specifically,
-- After each episode, we add up the rewards that each agent received (without discounting), to get a score for each agent. This yields 20 (potentially different) scores.  We then take the average of these 20 scores. 
-- This yields an **average score** for each episode (where the average is over all 20 agents).
+The observation space consists of 8 variables corresponding to the position and velocity of the ball and racket. Each agent receives
+its own, local observation. Two continuous actions are available, corresponding to movement toward (or away from) the net, and jumping. 
 
-The environment is considered solved, when the average (over 100 episodes) of those average scores is at least +30. 
+The task is episodic, and in order to solve the environment, your agents must get an average score of +0.5
+(over 100 consecutive episodes, after taking the maximum over both agents). Specifically,
+
+- After each episode, we add up the rewards that each agent received (without discounting), to get a score for each agent. This yields 2 (potentially different) scores. We then take the maximum of these 2 scores.
+- This yields a single **score** for each episode.
+
+The environment is considered solved, when the average (over 100 episodes) of those **scores** is at least +0.5.
 
 # Approach
 
-I started with the base DDPG [3] alghoritm provided by [Udacity](https://github.com/udacity/deep-reinforcement-learning/tree/master/ddpg-bipedal)
-[1], which can train a bipedal walker.
- 
+I started with the DDPG [2] algorithm that I developed for [Continuous Control](https://github.com/miharothl/DRLND-Collaboration-And-Competition)[1]. I adjusted the configuration
+to use 2 agents and was able to solve the environment by achieving a score 0.5+ over 100 consecutive episodes.
 
-![Bipedal Walker][image2]
-
-I modified the code to the Unity Reacher environment, and the code agent was able to achieve 30+ scores over 100 consecutive episodes.
-I followed the procedure outlined by Udacity:
-
-1. Adjust to code to use multiple agents, that during training use shared experience replay buffer and
-2. Implemented less aggressive training strategy, updating the network 20 times on every 10 timesteps.
+I tired to improve the learning process by implementing:
+- PER [3]
+- MADDPG [4]
 
 The steps that I followed to solve this environment:
 
@@ -42,44 +43,53 @@ The steps that I followed to solve this environment:
 
 ## 1. Evaluate State & Action Space of the Environment
 
-The state-space has 33 dimensions corresponding to the position, rotation, velocity, and angular velocities of the two arm rigid bodies.
-Action-space is continuous; it has 4 dimensions corresponding to torque applicable to two joints.
+The action-space has 2 continuous dimensions corresponding to the, corresponding to movement toward (or away from) the net, and jumping. 
+The state-space is continuous; it has 8 dimensions corresponding to the position and velocity of the ball and racket. Each agent receives
+its own, local observation.
 
 ## 2. Establish Baseline Using Random Action Policy
 
 Before starting the deep reinforcement learning process, its good to understand the environment. Controlling the 
-multiple robots with an agent where actions have randomly selected achieve scores averaging 0.4 over 100 consecutive episodes.
+rackets with an agent where actions have randomly selected achieve scores averaging 0.01 over 100 consecutive episodes.
  
 ## 3. Implement Learning Algorithm
 
 The
-[agent](https://github.com/miharothl/DRLND-Continuous-Control/blob/master/drl/agent/ddpg_agent.py)
+[agent](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/master/drl/agent/ddpg_agent.py)
 and 
-[environment](https://github.com/miharothl/DRLND-Continuous-Control/blob/master/drl/env/unity_multiple_env.py)
+[environment](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/master/drl/env/unity_multiple_env.py)
 are created according to the provided
-[configuration](https://github.com/miharothl/DRLND-Continuous-Control/blob/master/drl/experiment/configuration.py)
+[configuration](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/master/drl/experiment/configuration.py)
 .
-[Recorder](https://github.com/miharothl/DRLND-Continuous-Control/blob/master/drl/experiment/recorder.py)
+[Recorder](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/master/drl/experiment/recorder.py)
 records the experiment and store the results for later
-[analysis](https://github.com/miharothl/DRLND-Continuous-Control/blob/master/rlab-analysis.ipynb)
+[analysis](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/master/rlab-analysis.ipynb)
 .
 
 The agent interacts with the environment in the
-[training loop](https://github.com/miharothl/DRLND-Continuous-Control/blob/master/drl/experiment/train/master_trainer.py)
+[training loop](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/master/drl/experiment/train/master_trainer.py)
 .
 In the exploration phase (higher *Epsilon*) of the training
 agent's actions are mostly random, created using 
-[Ornstein-Uhlenbeck noise generator](https://github.com/miharothl/DRLND-Continuous-Control/blob/master/drl/agent/tools/ou_noise.py)
+[Ornstein-Uhlenbeck noise generator](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/master/drl/agent/tools/ou_noise.py)
 . Actions, environment states, dones, and rewards tuples, are stored in the experience
 replay buffer. The *Buffer Size* parameter determines the size of the buffer.
 
 DDPG [3] is using 
-[actor and critic](https://github.com/miharothl/DRLND-Continuous-Control/blob/master/drl/model/ddpg_model.py)
+[actor and critic](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/master/drl/model/ddpg_model.py)
 neural networks. Both have current, and target model with identical architecture used to stabilize the DDPG learning process.
 During the learning process, weights of the target network are fixed (or updated more slowly based on parameter *Tau*).
 
+The loss function is defined as the mean square error of critic's temporal difference error, the difference between the expected
+and estimated q values. Adam optimizer minimizes the loss function performing the gradient descent and backpropagation algorithm
+using the specified *Learning Rate*.
+
 Learning is performed *Num Updates* times on every *Update Every* steps, when *Batch Size* of actions, states, dones and rewards tuples are
-randomly sampled from [replay buffer](https://github.com/miharothl/DRLND-Continuous-Control/blob/master/drl/agent/tools/replay_buffer.py) [2]
+sampled from the
+[replay buffer](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/master/drl/agents/replay_buffer.py)
+either randomly or in case of prioritized experience replay, based on their importance,
+determined by the temporal difference error. Prioritized experience replay requires
+[segment trees](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/master/drl/agents/segment_tree.py)
 .
 
 During the exploitation phase of the training (lower *Epsilon*) the noise added to the actions is proportionally scaled down (*epsilon end*)
@@ -87,7 +97,7 @@ and mostly based on the estimated policies calculated by the current actor neura
 
 ## 4. Run Experiments and Select Best Agent
 
-[Training](https://github.com/miharothl/DRLND-Continuous-Control/blob/master/rlab-continous-control.ipynb)
+[Training](https://github.com/miharothl/DRLND-Collaboration-And-Competition/blob/master/rlab-continous-control.ipynb)
 is done using the epochs, consisting of training episodes where epsilon greedy agent is used,
 and validation episodes using only actions predicted by the trained agent.
  
